@@ -1,61 +1,85 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Where an online store loses its shoppers</title>
-<meta name="description" content="E-commerce funnel analysis in SQL and Python. Explore the funnel by channel and device.">
+<meta name="description" content="E-commerce funnel analysis with SQL and Python. Filter the funnel by channel and device.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f6f8fb;--fg:#17202c;--muted:#5d6978;--card:#fff;--line:#dde3ec;--accent:#3d63a0;--loss:#b4423f;--code:#eef2f7;color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11151b;--fg:#e8edf4;--muted:#99a5b5;--card:#181e26;--line:#2a3340;--accent:#8fb0e0;--loss:#e08a86;--code:#1f2630;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#11151b;--fg:#e8edf4;--muted:#99a5b5;--card:#181e26;--line:#2a3340;--accent:#8fb0e0;--loss:#e08a86;--code:#1f2630;color-scheme:dark}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:760px;margin:0 auto;padding:40px 18px 64px}
-h1{font:700 clamp(1.8rem,6vw,2.6rem)/1.15 Georgia,"Times New Roman",serif;margin:0 0 .4em;letter-spacing:-.01em}
-h2{font-size:1.3rem;margin:2.2em 0 .5em}p{margin:.6em 0}.lede{color:var(--muted);font-size:1.05rem}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:20px}
-.filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-label{display:flex;flex-direction:column;font-size:.85rem;color:var(--muted);gap:4px;flex:1;min-width:140px}
-select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
-select:focus-visible{outline:2px solid var(--accent)}
-.step{display:flex;justify-content:space-between;gap:10px;font-weight:600}.step small{font-weight:400;color:var(--muted)}
-.bar{height:14px;background:var(--code);border-radius:7px;overflow:hidden;margin:5px 0 2px}.bar i{display:block;height:100%;background:var(--accent);border-radius:7px;transition:width .35s}
-.gap{display:flex;gap:12px;font-size:.88rem;color:var(--muted);padding:5px 0 5px 12px;border-left:2px solid var(--line);margin:4px 0 4px 6px}
-.gap .lost{color:var(--loss)}.gap.worst{border-left-color:var(--loss);color:var(--fg)}.gap.worst b{color:var(--loss)}
-.result{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
-pre{background:var(--code);padding:14px;border-radius:10px;overflow-x:auto;font:.82rem/1.5 ui-monospace,Menlo,Consolas,monospace}
-a{color:var(--accent)}.note{color:var(--muted);font-size:.9rem}
-@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
-</style></head><body><main>
-<h1 id="hl">Mobile checkout loses 47% of shoppers; desktop loses 19%.</h1>
-<p class="lede">A funnel analysis of 60,000 simulated store visitors, built with SQL and Python. Filter the funnel below to see where each group drops off.</p>
-<section class="card" aria-live="polite">
-<div class="filters">
-<label>Channel<select id="ch"><option value="all">All channels</option><option>organic</option><option>paid_search</option><option>social</option><option>email</option><option>referral</option></select></label>
-<label>Device<select id="dv"><option value="all">All devices</option><option>mobile</option><option>desktop</option><option>tablet</option></select></label>
-</div>
-<div id="flow"></div><div class="result" id="res"></div>
+:root{--bg:#f3f5f9;--panel:#fff;--ink:#0f1b33;--muted:#5b6679;--line:#dbe1ec;--blue:#2456c9;--on:#fff;--loss:#c8325a;--code:#e9edf5;--d:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0c111b;--panel:#141b29;--ink:#eaf0fb;--muted:#97a3b8;--line:#243049;--blue:#7ea2ff;--on:#0c111b;--loss:#ff7b9c;--code:#1a2333;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:780px;margin:0 auto;padding:0 20px 72px}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 0;font:700 1rem var(--d)}
+a{color:var(--blue)}header a{text-decoration:none;font:600 .95rem system-ui,sans-serif}
+h1{font:800 clamp(2.3rem,8.5vw,4rem)/1.02 var(--d);letter-spacing:-.03em;margin:28px 0 20px;max-width:14em}
+h2{font:700 1.5rem/1.2 var(--d);letter-spacing:-.01em;margin:64px 0 14px}
+.lede{font-size:1.15rem;color:var(--muted);max-width:34em;margin:0 0 32px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 20px}
+.fl{font-size:.85rem;color:var(--muted);margin:0 0 8px}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+button{font:inherit;font-size:.92rem;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on);font-weight:600}
+button:focus-visible,a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+#res{font-size:1.05rem;margin:6px 0 22px;padding-top:18px;border-top:1px solid var(--line)}#res b{font:800 1.5rem var(--d)}
+.r{display:grid;grid-template-columns:minmax(7.6em,34%) 1fr;column-gap:14px;align-items:center}
+.l{display:flex;flex-direction:column;line-height:1.25;font-size:.85rem;color:var(--muted)}
+.l b{font:700 .98rem var(--d);color:var(--ink)}.l small{font-size:.8rem;color:var(--muted)}
+.r:not(.g) .l span{color:var(--ink);font-variant-numeric:tabular-nums}
+.b i{display:block;height:36px;margin:0 auto;background:var(--blue);border-radius:6px}
+.g{min-height:36px}.g u{display:block;height:36px;background:var(--blue);opacity:.16}
+.g.wk u{background:var(--loss);opacity:.3}.ls{color:var(--loss);font-weight:700}.wk .l span:last-child{color:var(--ink)}
+.find{border-top:1px solid var(--line);padding:16px 0}.find:last-of-type{border-bottom:1px solid var(--line)}.find p{margin:0}.find b{font:700 1.05rem var(--d)}
+.cr{display:grid;grid-template-columns:6.5em 1fr 3.4em;gap:12px;align-items:center;margin:9px 0;font-size:.95rem}.cr b{text-align:right;font-variant-numeric:tabular-nums}
+.b2{height:16px;background:var(--code);border-radius:8px;overflow:hidden}.b2 i{display:block;height:100%;background:var(--blue);border-radius:8px}
+pre{background:var(--code);padding:16px;border-radius:12px;overflow-x:auto;font:.82rem/1.55 ui-monospace,Menlo,Consolas,monospace}
+.note{color:var(--muted);font-size:.9rem;margin-top:28px}
+</style></head><body><div class="wrap">
+<header><span>Funnel analysis</span><a data-repo href="https://github.com">View on GitHub</a></header>
+<h1 id="hl">Mobile checkout loses 47% of shoppers. Desktop loses 19%.</h1>
+<p class="lede">A funnel analysis of 60,000 simulated store visitors, built with SQL and Python. Pick a channel or device to see where that group drops off.</p>
+<section class="panel" aria-live="polite">
+<p class="fl">Channel</p><div class="chips" id="chc" data-k="ch" role="group" aria-label="Channel"></div>
+<p class="fl">Device</p><div class="chips" id="dvc" data-k="dv" role="group" aria-label="Device"></div>
+<div id="res"></div><div id="flow"></div>
 </section>
+<h2>What the data shows</h2>
+<div class="find"><p><b>Mobile is the leak.</b> It brings 62% of visitors but converts at 5.7%, against 9.1% on desktop. The gap sits between starting checkout and entering payment details.</p></div>
+<div class="find"><p><b>Channels differ a lot.</b> Email converts best and social worst. Paid search is a quarter of all traffic, and 39% of its visitors leave before viewing a product.</p></div>
+<div class="find"><p><b>A late-September bug.</b> For two weeks only 51 to 59% of mobile shoppers who reached payment completed the order, against about 86% normally. That cost roughly 130 orders.</p></div>
+<h2>Conversion by channel</h2><div id="chart"></div>
 <h2>How it was built</h2>
-<p>Raw events go into SQLite. One SQL view turns them into a strict, ordered funnel: unique users, each step after the one before it, all within 7 days of the first visit. Duplicate events are removed by taking each user’s first occurrence of every step.</p>
+<p>Raw events go into SQLite. One SQL view turns them into a strict, ordered funnel: unique users, each step after the one before it, all within 7 days of the first visit. Duplicate events are removed by taking each user’s first occurrence of every step. Python then draws the charts and this page’s data.</p>
 <pre>MIN(CASE WHEN event_name = 'product_view' THEN event_ts END) AS t2,
 ...
 CASE WHEN r2 = 1 AND t3 IS NOT NULL AND t3 &gt;= t2
      AND t3 &lt;= datetime(t1, '+7 days') THEN 1 ELSE 0 END AS r3</pre>
-<p>Python draws the charts and the flow diagram. The write-up ends with recommendations: audit the mobile checkout, add an alert on payment completion by device, and rebalance paid-search spend.</p>
-<p><a href="https://github.com/sayoneeldutta/Funnel-Analysis">See the code and full write-up on GitHub</a></p>
+<p>The write-up ends with three recommendations: audit the mobile checkout, alert on payment completion by device, and rebalance paid-search spend. <a data-repo href="https://github.com">Read the full write-up on GitHub</a>.</p>
 <p class="note">The data is synthetic, generated for this project, so the numbers show the method rather than a real business.</p>
-</main><script>
-const D=[["email", "desktop", 2969, 2441, 1015, 610, 512, 483], ["email", "mobile", 5613, 4615, 1936, 1178, 609, 526], ["email", "tablet", 434, 369, 149, 87, 66, 63], ["organic", "desktop", 5945, 4528, 1341, 820, 635, 542], ["organic", "mobile", 11158, 8492, 2667, 1636, 880, 712], ["organic", "tablet", 890, 674, 190, 116, 84, 71], ["paid_search", "desktop", 4870, 2925, 782, 480, 381, 310], ["paid_search", "mobile", 9274, 5681, 1509, 907, 479, 383], ["paid_search", "tablet", 777, 494, 136, 89, 67, 52], ["referral", "desktop", 1982, 1569, 569, 345, 292, 266], ["referral", "mobile", 3697, 2902, 1037, 607, 316, 260], ["referral", "tablet", 324, 265, 116, 75, 56, 50], ["social", "desktop", 3934, 2692, 526, 296, 243, 200], ["social", "mobile", 7514, 5135, 995, 614, 324, 232], ["social", "tablet", 619, 428, 89, 47, 33, 23]],S=["Visit","Viewed a product","Added to cart","Started checkout","Entered payment","Purchased"];
-const f=n=>n.toLocaleString("en-US"),$=id=>document.getElementById(id);
+</div><script>
+const D=[["email", "desktop", 2969, 2441, 1015, 610, 512, 483], ["email", "mobile", 5613, 4615, 1936, 1178, 609, 526], ["email", "tablet", 434, 369, 149, 87, 66, 63], ["organic", "desktop", 5945, 4528, 1341, 820, 635, 542], ["organic", "mobile", 11158, 8492, 2667, 1636, 880, 712], ["organic", "tablet", 890, 674, 190, 116, 84, 71], ["paid_search", "desktop", 4870, 2925, 782, 480, 381, 310], ["paid_search", "mobile", 9274, 5681, 1509, 907, 479, 383], ["paid_search", "tablet", 777, 494, 136, 89, 67, 52], ["referral", "desktop", 1982, 1569, 569, 345, 292, 266], ["referral", "mobile", 3697, 2902, 1037, 607, 316, 260], ["referral", "tablet", 324, 265, 116, 75, 56, 50], ["social", "desktop", 3934, 2692, 526, 296, 243, 200], ["social", "mobile", 7514, 5135, 995, 614, 324, 232], ["social", "tablet", 619, 428, 89, 47, 33, 23]],S=["Visit","Viewed a product","Added to cart","Started checkout","Entered payment","Purchased"],
+CH=["organic","paid_search","social","email","referral"],DV=["mobile","desktop","tablet"],
+$=id=>document.getElementById(id),f=n=>n.toLocaleString("en-US"),nm=s=>s.replace("_"," "),st={ch:"all",dv:"all"};
 function sum(c,d){const t=[0,0,0,0,0,0];D.forEach(r=>{if((c==="all"||r[0]===c)&&(d==="all"||r[1]===d))for(let i=0;i<6;i++)t[i]+=r[2+i]});return t}
+function chips(id,all,opts){$(id).innerHTML=[["all",all],...opts.map(o=>[o,nm(o)])].map(([v,t])=>`<button type="button" data-v="${v}" aria-pressed="false">${t}</button>`).join("")}
 function render(){
-const t=sum($("ch").value,$("dv").value),v=t[0];let h="",w=3,wr=2;
+document.querySelectorAll("button[data-v]").forEach(b=>b.setAttribute("aria-pressed",String(st[b.parentNode.dataset.k]===b.dataset.v)));
+const t=sum(st.ch,st.dv),v=t[0],a=sum("all","all");
 if(!v){$("flow").textContent="No visitors in this selection.";$("res").textContent="";return}
-for(let i=3;i<6;i++){const r=t[i]?t[i]/t[i-1]:0;if(r<wr){wr=r;w=i}}
+const who=(st.dv==="all"?"":st.dv+" ")+(st.ch==="all"?(st.dv==="all"?"all visitors":"visitors"):"visitors from "+nm(st.ch));
+$("res").innerHTML=`<b>${(t[5]/v*100).toFixed(1)}%</b> of ${who} buy.`+(st.ch==="all"&&st.dv==="all"?"":` Across all traffic: ${(a[5]/a[0]*100).toFixed(1)}%.`);
+const w=t.map(n=>Math.max(n/v*100,2));let wk=3,wr=2,h="";
+for(let i=3;i<6;i++){const r=t[i-1]?t[i]/t[i-1]:0;if(r<wr){wr=r;wk=i}}
 t.forEach((n,i)=>{
-if(i)h+=`<div class="gap${i===w?" worst":""}"><span>${t[i-1]?Math.round(n/t[i-1]*100):0}% continue</span><span class="lost">${f(t[i-1]-n)} lost</span>${i===w?"<b>weakest checkout step</b>":""}</div>`;
-h+=`<div class="step"><span>${S[i]}</span><span>${f(n)} <small>${(n/v*100).toFixed(1)}% of visitors</small></span></div><div class="bar"><i style="width:${Math.max(n/v*100,1)}%"></i></div>`});
-$("flow").innerHTML=h;
-const a=sum("all","all");$("res").innerHTML=`<b>${(t[5]/v*100).toFixed(1)}%</b> of this group buys. All visitors: ${(a[5]/a[0]*100).toFixed(1)}%.`}
+if(i){const p=t[i-1],x=50-w[i-1]/2,y=50+w[i-1]/2,x2=50-w[i]/2,y2=50+w[i]/2;
+h+=`<div class="r g${i===wk?" wk":""}"><div class="l"><span class="ls">−${f(p-n)}</span><span>${p?Math.round(n/p*100):0}% continue${i===wk?", weakest checkout step":""}</span></div><div class="b"><u style="clip-path:polygon(${x}% 0,${y}% 0,${y2}% 100%,${x2}% 100%)"></u></div></div>`}
+h+=`<div class="r"><div class="l"><b>${S[i]}</b><span>${f(n)} <small>${(n/v*100).toFixed(1)}%</small></span></div><div class="b"><i style="width:${w[i]}%"></i></div></div>`});
+$("flow").innerHTML=h}
+chips("chc","All channels",CH);chips("dvc","All devices",DV);
+document.addEventListener("click",e=>{const b=e.target.closest("button[data-v]");if(b){st[b.parentNode.dataset.k]=b.dataset.v;render()}});
 const m=sum("all","mobile"),k=sum("all","desktop");
-$("hl").textContent=`Mobile checkout loses ${Math.round((1-m[4]/m[3])*100)}% of shoppers; desktop loses ${Math.round((1-k[4]/k[3])*100)}%.`;
-$("ch").onchange=$("dv").onchange=render;render();
+$("hl").textContent=`Mobile checkout loses ${Math.round((1-m[4]/m[3])*100)}% of shoppers. Desktop loses ${Math.round((1-k[4]/k[3])*100)}%.`;
+const ct=CH.map(c=>{const s=sum(c,"all");return[c,s[5]/s[0]*100]}).sort((x,y)=>y[1]-x[1]);
+$("chart").innerHTML=ct.map(([c,p])=>`<div class="cr"><span>${nm(c)}</span><div class="b2"><i style="width:${p/ct[0][1]*100}%"></i></div><b>${p.toFixed(1)}%</b></div>`).join("");
+const hn=location.hostname,rp=location.pathname.split("/")[1];
+if(hn.endsWith(".github.io")&&rp)document.querySelectorAll("[data-repo]").forEach(a=>a.href=`https://github.com/${hn.split(".")[0]}/${rp}`);
+render();
 </script></body></html>
