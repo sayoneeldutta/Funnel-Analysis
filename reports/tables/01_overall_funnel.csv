@@ -1,0 +1,7 @@
+step_no,step,users,step_conv_pct,dropoff_pct,overall_pct
+1,visit,60000,,,100.0
+2,product_view,43210,72.0,28.0,72.02
+3,add_to_cart,13057,30.2,69.8,21.76
+4,checkout_start,7907,60.6,39.4,13.18
+5,payment_info,4977,62.9,37.1,8.29
+6,purchase,4173,83.8,16.2,6.96

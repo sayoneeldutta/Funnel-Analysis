@@ -1,0 +1,4 @@
+device,visits,product_views,add_to_cart,checkout,payment,purchases,checkout_to_payment_pct,overall_conv_pct
+desktop,19700,14155,4233,2551,2063,1801,80.9,9.14
+tablet,3044,2230,680,414,306,259,73.9,8.51
+mobile,37256,26825,8144,4942,2608,2113,52.8,5.67

@@ -1,0 +1,6 @@
+channel,visits,product_views,add_to_cart,checkout,payment,purchases,visit_to_view_pct,view_to_cart_pct,overall_conv_pct
+email,9016,7425,3100,1875,1187,1072,82.4,41.8,11.89
+referral,6003,4736,1722,1027,664,576,78.9,36.4,9.6
+organic,17993,13694,4198,2572,1599,1325,76.1,30.7,7.36
+paid_search,14921,9100,2427,1476,927,745,61.0,26.7,4.99
+social,12067,8255,1610,957,600,455,68.4,19.5,3.77

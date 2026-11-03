@@ -1,0 +1,41 @@
+OVERALL FUNNEL
+ step_no           step  users  step_conv_pct  dropoff_pct  overall_pct
+       1          visit  60000            NaN          NaN       100.00
+       2   product_view  43210           72.0         28.0        72.02
+       3    add_to_cart  13057           30.2         69.8        21.76
+       4 checkout_start   7907           60.6         39.4        13.18
+       5   payment_info   4977           62.9         37.1         8.29
+       6       purchase   4173           83.8         16.2         6.96
+
+BY CHANNEL
+    channel  visits  product_views  add_to_cart  checkout  payment  purchases  visit_to_view_pct  view_to_cart_pct  overall_conv_pct
+      email    9016           7425         3100      1875     1187       1072               82.4              41.8             11.89
+   referral    6003           4736         1722      1027      664        576               78.9              36.4              9.60
+    organic   17993          13694         4198      2572     1599       1325               76.1              30.7              7.36
+paid_search   14921           9100         2427      1476      927        745               61.0              26.7              4.99
+     social   12067           8255         1610       957      600        455               68.4              19.5              3.77
+
+BY DEVICE
+ device  visits  product_views  add_to_cart  checkout  payment  purchases  checkout_to_payment_pct  overall_conv_pct
+desktop   19700          14155         4233      2551     2063       1801                     80.9              9.14
+ tablet    3044           2230          680       414      306        259                     73.9              8.51
+ mobile   37256          26825         8144      4942     2608       2113                     52.8              5.67
+
+WEEKLY (mobile payment->purchase)
+week_start  overall_conv_pct  payment_to_purchase_pct
+2026-08-03              6.69                     85.8
+2026-08-10              5.81                     85.9
+2026-08-17              5.90                     84.3
+2026-08-24              5.63                     80.9
+2026-08-31              5.92                     90.0
+2026-09-07              6.07                     86.6
+2026-09-14              5.62                     82.0
+2026-09-21              3.59                     50.9
+2026-09-28              3.75                     59.3
+2026-10-05              6.34                     84.7
+2026-10-12              6.30                     87.4
+2026-10-19              6.45                     92.2
+
+TIME TO CONVERT (min): median=33  p90=1155
+
+DATA QUALITY: 137,360 event rows, 133,359 unique user-event pairs -> 4,001 duplicates handled by MIN() in the view
